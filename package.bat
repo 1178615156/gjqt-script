@@ -1,3 +1,4 @@
+@RD /s /q dist
 "C:\Program Files (x86)\Python36-32\Scripts\pyinstaller.exe" ^
     --clean ^
     --onefile ^
