@@ -1,30 +1,24 @@
+import logging
 import time
 
 from PIL.Image import Image
 
-from gjsp.common.utensil import goal_image, millisecond
+from gjsp import Screen
 from gjsp.common import Windows, FindPic
-from gjsp.skill import SkillStatus
-import logging
+from gjsp.common.utensil import millisecond
+from gjsp.skill import skill_status
+from gjsp.common.const_value import *
 
 logger = logging.getLogger("skill")
 
 
-class SkillLoop:
-    area_fu_wen = (800, 800, 1000, 1080)
-    area_buff = (400, 800, 850, 900)
-    area_skill = (5, 645, 400, 686)
-    area_mouse_tap = (1000, 400, 1300, 600)
-    img_war_npc = goal_image("war_npc.bmp")
-    img_mouse_left = goal_image("mouse_left.bmp")
-    img_mouse_right = goal_image("mouse_right.bmp")
-
+class SkillLoop(Screen):
     def __init__(self, windows: Windows):
+        super().__init__()
         self.start_time = millisecond()
         self.before_time = millisecond()
-        self.status: SkillStatus = None
+        self.status: skill_status = None
         self.windows: Windows = windows
-        self._screen: Image = None
         self.__skill = None
 
     def mouse_tap_if_need(self):
@@ -57,23 +51,15 @@ class SkillLoop:
     def is_doing_war_npc(self, screen: Image):
         return FindPic(
             original=screen.crop((0, 500, screen.width, screen.height)),
-            goal=self.img_war_npc
+            goal=img_war_npc
         ).isFind()
 
     ### screen
-    def update_screen(self, screen=None):
+    def update(self, screen=None):
         if screen is None:
-            self._screen = self.windows.screen_shot()
+            super().update(self.windows.screen_shot())
         else:
-            self._screen = screen
-
-        self.update_after_screen()
-
-    def screen(self) -> Image:
-        return self._screen
-
-    def update_after_screen(self):
-        pass
+            super().update(screen)
 
     def clear(self):
         pass
@@ -88,10 +74,10 @@ class SkillLoop:
         self.run()
 
     def exist_buffer(self, img):
-        return FindPic(original=self.screen().crop(self.area_buff), goal=img).isFind()
+        return FindPic(original=self.screen().crop(area_buff), goal=img).isFind()
 
     def exist_skill(self, img):
-        return FindPic(original=self.screen().crop(self.area_skill), goal=img, sim=0.99).isFind()
+        return FindPic(original=self.screen().crop(area_skill), goal=img, sim=0.99).isFind()
 
     def exist_fu_wen(self, img):
-        return FindPic(original=self.screen().crop(self.area_fu_wen), goal=img).isFind()
+        return FindPic(original=self.screen().crop(area_fu_wen), goal=img).isFind()

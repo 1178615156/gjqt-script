@@ -1,20 +1,21 @@
 import os
 import time
 from ctypes import windll
-from typing import List
 
 import win32com.client
 from PIL import Image
 
 from gjsp.common import Windows
+from gjsp.common.utensil import millisecond
 from gjsp.common.utensil import user_dir
+from gjsp.common.const_value import ConfigVal
 
 
-def get_reg_code() -> List[List[str]]:
-    return list(
-        filter(lambda l: len(l) == 2,
-               map(lambda s: s.replace(" ", "").replace("\t", "").replace("\r", "").replace("\n", "").split("--"),
-                   list(open(user_dir + "dm_reg_code.txt").readlines()))))
+# def get_reg_code() -> List[List[str]]:
+#     return list(
+#         filter(lambda l: len(l) == 2,
+#                map(lambda s: s.replace(" ", "").replace("\t", "").replace("\r", "").replace("\n", "").split("--"),
+#                    list(open(user_dir + "dm_reg_code.txt").readlines()))))
 
 
 class WindowsDm(Windows):
@@ -34,13 +35,16 @@ class WindowsDm(Windows):
             assert dm_ret == 1, "msg:%s,dm_ret:%s,code:%s" % (error_msg, dm_ret, self.get_last_error())
 
     def screen_shot(self) -> Image.Image:
+        start_time = millisecond()
         dm_ret = self.dll.Capture(0, 0, self.width, self.height, self.screen_file_name)
+        end_time = millisecond()
+        print("shot screen time:%s " % (end_time-start_time))
         self.check(dm_ret)
         return Image.open(self.screen_file_name)
 
     def init(self, hwnd: int):
         print("start init ; the windows hwnd is :%s" % (hwnd))
-        if len(get_reg_code()) == 0:
+        if ConfigVal.dm_reg_code == "":
             print("not find reg code , use free dm")
             windll[user_dir + "dm-7.dll"].DllUnregisterServer()
             windll[user_dir + "dm-3.dll"].DllRegisterServer()
@@ -56,9 +60,8 @@ class WindowsDm(Windows):
             print("find reg code , try to reg")
             windll[user_dir + "dm-3.dll"].DllUnregisterServer()
             windll[user_dir + "dm-7.dll"].DllRegisterServer()
-            a, b = get_reg_code()[0]
             self.dll = win32com.client.Dispatch('dm.dmsoft')
-            dm_ret = self.dll.Reg(a, b)
+            dm_ret = self.dll.Reg(ConfigVal.dm_reg_code, ConfigVal.dm_add_code)
             self.check(dm_ret, "reg code is failure")
             self.is_free = False
             print("reg success")

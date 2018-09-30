@@ -25,3 +25,4 @@ win32core==221.36
 win32gui==221.6
 winappdbg==1.5
 winiobinary==0.0.6
+pyhocon==0.3.47

@@ -13,13 +13,12 @@ class GjDps(EvenLoop):
     def clear(self):
         self.skill_loop.clear()
 
-    def delay(self):
-        time.sleep(0.2)
-
     def run(self):
-        self.skill_loop.update_screen()
+        self.skill_loop.update(None)
         self.skill_loop.run()
 
+    def delay(self):
+        time.sleep(0.22)
 
 class GjDpsPve(GjDps):
     def run(self):

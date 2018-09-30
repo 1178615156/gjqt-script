@@ -2,12 +2,14 @@ import logging
 import time
 from threading import Thread
 from typing import Dict
-
+from gjsp.common.utensil import millisecond
 from pyhooked import Hook, KeyboardEvent
 
 from gjsp.service.even_loop import EvenLoop
 
 _logger = logging.getLogger("even_loop")
+
+_press_key_file = open("D:/press_key.txt", "a")
 
 
 class HotKey:
@@ -23,6 +25,11 @@ class HotKey:
     def start_hook(self):
         def handle_events(args: KeyboardEvent):
             key = args.current_key
+            # if args.event_type == "key up":
+            #     _press_key_file.write("%s,%s,up\n" % (millisecond(), key))
+            # else:
+            #     _press_key_file.write("%s,%s,down\n" % (millisecond(), key))
+            # _press_key_file.flush()
             if key not in self.handler:
                 return
             if not args.event_type == 'key up':
