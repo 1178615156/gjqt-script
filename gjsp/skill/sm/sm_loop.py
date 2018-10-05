@@ -39,10 +39,10 @@ class SmSkillLoop(SkillLoop):
         end_time = millisecond()
         _logger.debug("update time :%s,super:%s, skill:%s, ll:%s, fu_wen:%s" %
                       (end_time - start_time,
-                       super_time-start_time,
-                       skill_time-super_time,
-                       ling_li_time-skill_time,
-                       end_time-ling_li_time))
+                       super_time - start_time,
+                       skill_time - super_time,
+                       ling_li_time - skill_time,
+                       end_time - ling_li_time))
 
     ### status logic loop
     def start(self):
@@ -56,34 +56,37 @@ class SmSkillLoop(SkillLoop):
         fu_wen = self.fu_wen()
 
         if self.exist_buffer(SmVal.img_buff_zu_fu):
-            _logger.info("exist ci fu ,wait 0.3")
-            self.wait(0.3)
+            _logger.info("exist ci fu ,wait 0.2")
+            self.wait(0.2)
+            return
 
         if self.ling_li().score() < 15 and self.skill().ci_fu.is_ok():
             self.skill().ci_fu.freed()
-            self.wait(0.4)
+            self.wait(0.6)
             return
 
-        if self.fu_wen().is_wait():
+        if self.fu_wen().is_wait() and self.skill().yu_hong.is_ok():
             self.wait()
             self.skill().yu_hong.freed()
+            return
 
-        if self.fu_wen().is_ok():
+        if self.exist_buffer(SmVal.img_buff_qjwh):
+            self.become(SkillStatus.Explosive)
+            return
+
+        if self.fu_wen().is_ok() or self.skill().gun_si.is_ok():
             self.wait()
             self.skill().gun_si.freed()
+
+        if skill.min_si.is_ok() and self.exist_fu_wen(SmVal.img_fu_wen_some):
+            skill.min_si.freed()
 
         if skill.hong_guang.is_ok() or self.exist_buffer(SmVal.img_buff_liu_guang):
             skill.hong_guang.freed()
             self.wait()
 
-        if skill.min_si.is_ok() and self.exist_fu_wen(SmVal.img_fu_wen_some):
-            skill.min_si.freed()
-
-        if not self.exist_buffer(SmVal.img_buff_zu_fu) and (millisecond() - self.before_time > 1500):
+        if not self.exist_buffer(SmVal.img_buff_zu_fu) and (millisecond() - self.before_time > 1550):
             skill.e.freed()
-
-        if self.exist_buffer(SmVal.img_buff_qjwh):
-            self.become(SkillStatus.Explosive)
 
     def explosive(self):
         if self.exist_buffer(SmVal.img_buff_qjwh):

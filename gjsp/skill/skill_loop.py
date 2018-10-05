@@ -22,13 +22,12 @@ class SkillLoop(Screen):
         self.__skill = None
 
     def mouse_tap_if_need(self):
-        # img = self.screen().crop(self.area_mouse_tap)
-        # # img.save( user_dir +"image_tmp\\%s.jpg" %(millisecond()))
-        # if FindPic(original=img, goal=self.img_mouse_left).isFind():
+        # img = self.screen().crop(Area.mouse_tap)
+        # if FindPic(original=img, goal=Global.img_mouse_left).isFind():
         #     print("mouse left click")
         #     self.windows.mouse_left_click()
         #     return True
-        # if FindPic(original=img, goal=self.img_mouse_right).isFind():
+        # if FindPic(original=img, goal=Global.img_mouse_right).isFind():
         #     print("mouse right click")
         #     self.windows.mouse_right_click()
         #     return True

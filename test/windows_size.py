@@ -1,7 +1,9 @@
 from gjsp.common import WindowsDm
 import win32gui
 from ctypes import windll
+import pywin
 
+# WritePRocessMemory
 user32 = windll.user32
 user32.SetProcessDPIAware()
 

@@ -9,6 +9,7 @@ from gjsp.common import Windows
 from gjsp.common.utensil import millisecond
 from gjsp.common.utensil import user_dir
 from gjsp.common.const_value import ConfigVal
+import random
 
 
 # def get_reg_code() -> List[List[str]]:
@@ -38,24 +39,17 @@ class WindowsDm(Windows):
         start_time = millisecond()
         dm_ret = self.dll.Capture(0, 0, self.width, self.height, self.screen_file_name)
         end_time = millisecond()
-        print("shot screen time:%s " % (end_time-start_time))
+        print("shot screen time:%s " % (end_time - start_time))
         self.check(dm_ret)
         return Image.open(self.screen_file_name)
 
-    def init(self, hwnd: int):
-        print("start init ; the windows hwnd is :%s" % (hwnd))
+    def load_dll(self):
         if ConfigVal.dm_reg_code == "":
             print("not find reg code , use free dm")
             windll[user_dir + "dm-7.dll"].DllUnregisterServer()
             windll[user_dir + "dm-3.dll"].DllRegisterServer()
             self.dll = win32com.client.Dispatch('dm.dmsoft')
             self.is_free = True
-            print("start bind window")
-            # dm_ret = self.dll.BindWindow(hwnd, "normal", "normal", "normal", 0)
-            dm_ret = self.dll.BindWindow(hwnd, "gdi", "windows", "windows", 0)
-            self.check(dm_ret, "bind is failure")
-            print("bind window success")
-
         else:
             print("find reg code , try to reg")
             windll[user_dir + "dm-3.dll"].DllUnregisterServer()
@@ -64,10 +58,23 @@ class WindowsDm(Windows):
             dm_ret = self.dll.Reg(ConfigVal.dm_reg_code, ConfigVal.dm_add_code)
             self.check(dm_ret, "reg code is failure")
             self.is_free = False
-            print("reg success")
+        return self.dll
+
+    def init(self, hwnd: int):
+        print("start init ; the windows hwnd is :%s" % (hwnd))
+        self.load_dll()
+        if self.is_free:
+            print("start bind window")
+            # dm_ret = self.dll.BindWindow(hwnd, "normal", "normal", "normal", 0)
+            dm_ret = self.dll.BindWindow(hwnd, "gdi", "normal", "windows", 0)
+            self.check(dm_ret, "bind is failure")
+            print("bind window success")
+        else:
+            dm_ret = self.dll.DmGuard(1, "np")
+            self.check(dm_ret)
 
             print("start bind window")
-            dm_ret = self.dll.BindWindow(hwnd, "gdi", "windows", "windows", 0)
+            dm_ret = self.dll.BindWindow(hwnd, "gdi", "normal", "windows", 0)
             self.check(dm_ret, "bind is failure")
             print("bind window success")
 
@@ -92,26 +99,49 @@ class WindowsDm(Windows):
         dm_ret = self.dll.KeyUpChar(key)
         self.check(dm_ret)
 
-    def key_press(self, key: str):
-        if "+" in key:
-            keys = key.split("+")
-            for x in keys:
-                self.wait()
-                self.key_down(x)
-            for x in reversed(keys):
-                self.wait()
-                self.key_up(x)
-        else:
-            dm_ret = self.dll.KeyPressChar(key)
-            self.check(dm_ret)
+    def mouse_right_click(self):
+        dm_ret = self.dll.RIghtClick()
+        self.check(dm_ret)
 
     def mouse_left_click(self):
         dm_ret = self.dll.LeftClick()
         self.check(dm_ret)
 
-    def mouse_right_click(self):
-        dm_ret = self.dll.RightClick()
+        # if "+" in key:
+        #     keys = key.split("+")
+        #     for x in keys:
+        #         self.wait()
+        #         self.key_down(x)
+        #     for x in reversed(keys):
+        #         self.wait()
+        #         self.key_up(x)
+        # else:
+        #     dm_ret = self.dll.KeyPressChar(key)
+        #     self.check(dm_ret)
+
+    def mouse_left_down(self):
+        dm_ret = self.dll.LeftDown()
         self.check(dm_ret)
+
+    def mouse_left_up(self):
+        dm_ret = self.dll.LeftUp()
+        self.check(dm_ret)
+
+    def mouse_right_down(self):
+        dm_ret = self.dll.RightUp()
+        self.check(dm_ret)
+
+    def mouse_right_up(self):
+        dm_ret = self.dll.RightDown()
+        self.check(dm_ret)
+
+    # def mouse_left_click(self):
+    #     dm_ret = self.dll.LeftClick()
+    #     self.check(dm_ret)
+    #
+    # def mouse_right_click(self):
+    #     dm_ret = self.dll.RightClick()
+    #     self.check(dm_ret)
 
     def move_to(self, x: int, y: int):
         dm_ret = self.dll.MoveTo(x, y)

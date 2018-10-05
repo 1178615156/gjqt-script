@@ -12,3 +12,6 @@
 #                      win32api.MapVirtualKey(win32con.VK_NUMPAD7,3),
 #                      win32con.KEYEVENTF_EXTENDEDKEY | win32con.KEYEVENTF_KEYUP,
 #                      0)  # r
+import random
+
+print(random.randint(40,60))

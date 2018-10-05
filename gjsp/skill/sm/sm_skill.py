@@ -17,13 +17,13 @@ class SmSkill(Screen):
         n = 44
         self.q = Skill("q", "q", windows, None)
         self.e = Skill("e", "e", windows, None)
-        self.hong_guang = Skill("虹光", "-", windows,
+        self.hong_guang = Skill("虹光", "6", windows,
                                 [skill_img(n * 2 + 2), goal_image("si_ming_skill_hong_guang_ci_fu.bmp")])
-        self.gun_si = Skill("滚石", "x", windows, [skill_img(n * 3)])
-        self.min_si = Skill("名视", "7", windows, skill_img(n * 4 + 2))
-        self.ci_fu = Skill("赐福", "8", windows, skill_img(n * 5 + 2))
-        self.yu_hong = Skill("玉虹", "9", windows, skill_img(n * 6 + 2))
-        self.jin_yu = Skill("金羽", "0", windows, skill_img(n * 7 + 2))
+        self.gun_si = Skill("滚石", "7", windows, [skill_img(n * 3)])
+        self.min_si = Skill("名视", "8", windows, skill_img(n * 4 + 2))
+        self.ci_fu = Skill("赐福", "9", windows, skill_img(n * 5 + 2))
+        self.yu_hong = Skill("玉虹", "0", windows, skill_img(n * 6 + 2))
+        self.jin_yu = Skill("金羽", "-", windows, skill_img(n * 7 + 2))
 
     def update(self, screen):
         screen = screen.crop(area_skill)
