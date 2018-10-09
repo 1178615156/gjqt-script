@@ -26,7 +26,7 @@ class GjZiLiao(EvenLoop):
 
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.INFO)
     windows = WindowsDm()
     gjqt_hwnd = list(windows.find_hwnd("古剑").keys())[0]
     windows.init(gjqt_hwnd)

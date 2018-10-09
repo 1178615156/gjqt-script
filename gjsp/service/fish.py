@@ -16,16 +16,12 @@ class Fish:
         goal_color = np.array([33, 78, 158])
 
     def __init__(self, hwnd, wind):
-        at_fish = goal_image("at_fish.bmp")
-        doing_fish = goal_image("四海生金.bmp")
-        reward_fish = goal_image("fish_flag.bmp")
-
         self.hwnd = hwnd
         self.wind = wind
 
-        self.find_at_fish = FindPic().goal(at_fish)
-        self.find_doing_fish = FindPic().goal(doing_fish)
-        self.find_reward_fish = FindPic().goal(reward_fish)
+        self.find_at_fish = FindPic().goal(goal_image("at_fish.bmp"))
+        self.find_doing_fish = FindPic().goal(goal_image("四海生金.bmp"))
+        self.find_reward_fish = FindPic().goal(goal_image("fish_flag.bmp"))
 
     @staticmethod
     def normal(img):
@@ -58,19 +54,9 @@ class Fish:
     def score(img):
         return np.count_nonzero(img) / np.size(img)
 
-    def just_screen_shot(self):
-        while True:
-            img = self.wind.screen_shot()
-            reward_img = img.crop(self.Reward.area)
-            if self.find_reward_fish.original(reward_img).isFind():
-                score = Fish.score(Fish.pretreatment(reward_img))
-                reward_img.save(user_dir + "image_tmp\\%s-%s.jpg" % (int(time.time() * 1000.0), score))
-
     def run(self):
         before_score = 0
-        score = 0
-        is_end = False
-        while not is_end:
+        while True:
             img = self.wind.screen_shot()
             reward_img = img.crop(self.Reward.area)
 
@@ -80,11 +66,12 @@ class Fish:
                 if before_score - score > 0.004:
                     self.wind.key_press("q")
                     print("到达指定位置:%s,%s" % (score, before_score))
-                    is_end = True
                     reward_img.save(user_dir + "image_tmp\\%s-%s.jpg" % (int(time.time() * 1000.0), score))
                     time.sleep(1)
-                before_score = np.max([before_score, score])
-                time.sleep(0.01)
+                    return
+                else:
+                    before_score = np.max([before_score, score])
+                    time.sleep(0.01)
             elif self.find_doing_fish.original(img).isFind():
                 print("doing fish ")
                 time.sleep(0.01)
@@ -104,7 +91,7 @@ if __name__ == '__main__':
     print(gjqt_hwnd)
     windows.init(gjqt_hwnd)
 
-    for i in range(20):
+    for i in range(50):
         print(i)
         Fish(gjqt_hwnd, windows).run()
 #

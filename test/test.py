@@ -15,3 +15,7 @@
 import random
 
 print(random.randint(40,60))
+
+from functional import seq
+print(seq(0).find(lambda x:x==1))
+print(seq(None,None))

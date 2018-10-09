@@ -4,6 +4,8 @@ from functools import reduce
 from PIL.Image import Image
 import logging
 from gjsp import Screen
+from gjsp.common.utensil import millisecond
+from functional import seq
 
 _logger = logging.getLogger("skill")
 
@@ -16,13 +18,13 @@ class Skill(Screen):
         self.__windows = windows
         self.__icons = self.process_icons(icons)
         self.__result = None
+        self.__ok_time = None
 
     def process_icons(self, icons):
         if icons is None:
             return None
-        if type(icons) is Image:
+        if not type(icons) is list:
             icons = [icons]
-        assert type(icons) is list
         return icons
 
     def icons(self):
@@ -38,13 +40,31 @@ class Skill(Screen):
     def update(self, screen):
         super().update(screen)
         if self.__icons is not None:
-            self.__result = reduce(
-                lambda l, r: l or r,
-                map(lambda e: FindPic(self.screen(), e, sim=0.95).isFind(), self.icons()))
+            self.__result = \
+                seq(self.icons()) \
+                    .map(lambda e: FindPic(self.screen(), e, sim=0.99).isFind()) \
+                    .exists(lambda x: x)
+            if self.__result:
+                if self.__ok_time is None:
+                    self.__ok_time = millisecond()
+            else:
+                self.__ok_time = None
 
     def is_ok(self) -> bool:
         return self.__result
 
+    def wait_time(self):
+        return (millisecond() - self.__ok_time) / 1000
+
     def freed(self):
         _logger.info("freed:%s - %s" % (self.name(), self.key()))
         self.__windows.key_press(self.key())
+
+    def just_down(self):
+        _logger.info("down:%s - %s" % (self.name(), self.key()))
+        self.__windows.key_down(self.key())
+
+    def just_up(self):
+        _logger.info("up:%s - %s" % (self.name(), self.key()))
+        self.__windows.key_up(self.key())
+

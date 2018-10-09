@@ -1,53 +1,62 @@
-from gjsp.common.utensil import user_dir
-from gjsp.service.fish import Fish
-from gjsp.common import WindowsDm, Windows
+import ctypes
 import sys
 import time
-import ctypes
-from gjsp.common.windows_dm import WindowsDm
+
+from gjsp.common import Windows
 from gjsp.common.const_value import ConfigVal, Area
+from gjsp.common.windows_dm import WindowsDm
+from gjsp.service.fish import Fish
+from gjsp.service.gua_ji import GjDpsPve
 from gjsp.service.hot_key import HotKey
-from gjsp.common.utensil import millisecond
-from gjsp.service.even_loop import EvenLoop
-from gjsp.service.gua_ji import GjDps, GjDpsPve, GjDpsPvp
 from gjsp.skill.sm.sm_loop import SmSkillLoop
+from functional import seq
 
-print("""
-    welcome to use gjqt script
-            args:%s
-        user_dir:%s
-        reg_code:%s
-""" % (str(sys.argv), user_dir, ConfigVal.dm_reg_code))
-time.sleep(0.5)
-
-windows = WindowsDm()
-gjqt_hwnd = list(windows.find_hwnd("古剑").keys())
-resolution = lambda: Windows.get_window_size(gjqt_hwnd[0])
-opt = lambda: sys.argv[1]
 
 if not ctypes.windll.shell32.IsUserAnAdmin():
     print("not admin , can not run")
-    exit()
-if len(gjqt_hwnd) == 0:
-    print("gj online have not start")
-    exit()
-if len(gjqt_hwnd) > 1:
-    print("you start gj online multiple instances")
-    exit()
-if not resolution() == (1680, 1050):
-    print("当前分辨率 %s ,只支持 (1680, 1050)")
+    exit(-1)
+
+
+def get_gjqt_hwnd(w:Windows):
+    gjqt_hwnd = list(w.find_hwnd("古剑").keys())
+    if len(gjqt_hwnd) != 1:
+        print("gj online have not start or you start gj online multiple instances")
+        exit(-1)
+    return gjqt_hwnd[0]
+
+
+windows = WindowsDm()
+hwnd = get_gjqt_hwnd(windows)
+windows.init(hwnd)
+resolution = Windows.get_window_size(hwnd)
+opt = lambda: sys.argv[1]
+windows.mk_dir()
+
+print(seq({
+    "args      ":str(sys.argv),
+    "resolution":str(resolution),
+    "hwnd      ":str(hwnd),
+    "reg_code  ":str(ConfigVal.dm_reg_code),
+    "dm_is_free":str(windows.is_free)
+}.items()).map(lambda x:x[0]+":"+x[1]).make_string("\n"))
+
+if not resolution == (1680, 1050):
+    print("当前分辨率 %s ,只支持 (1680, 1050)" % (str(resolution)))
     exit()
 
-gjqt_hwnd = gjqt_hwnd[0]
-windows.init(gjqt_hwnd)
-
-if len(sys.argv) <= 1:
+if len(sys.argv) <= 1 or opt() == "test":
     print("just test")
     time.sleep(2)
     windows.key_press("1")
-
+    screen = windows.screen_shot()
+    screen.crop(Area.skill).save("test_skill_area.jpg")
+    screen.crop(Area.buff).save("test_buff_area.jpg")
+    screen.crop(Area.fu_wen).save("test_fu_wen_area.jpg")
 elif opt() == "fish":
-    size = int(sys.argv[2])
+    if len(sys.argv) > 2:
+        size = int(sys.argv[2])
+    else:
+        size = ConfigVal.fish_size
     print("""
         即将开始钓鱼,请将窗口切换至[古剑奇谭ol]
         请勿遮挡,或最小化,
@@ -57,24 +66,18 @@ elif opt() == "fish":
         print('will start after %s' % (str(5 - i)))
         time.sleep(1)
     for i in range(size):
+        Fish(hwnd, windows).run()
         print("finish fish :%s" % (i))
-        Fish(gjqt_hwnd, windows).run()
 elif opt() == "si-ming-gua-ji":
     print("""
-    开始 司命挂机输出
-    请将窗口切换至[古剑奇谭ol]
-    请勿遮挡,或最小化,
-    【F5】键启动,再次按【F5】退出
+        开始 司命挂机输出
+        请将窗口切换至[古剑奇谭ol]
+        请勿遮挡,或最小化,
+        【F5】键启动,再次按【F5】退出
     """)
     hot_key = HotKey()
     hot_key.add_handler(GjDpsPve(name="gj-dps-pve", key="F5", windows=windows, skill_loop=SmSkillLoop(windows)))
     hot_key.start_hook()
     hot_key.run_even_loop()
-elif opt() == "si-ming-gua-ji-test":
-    screen = windows.screen_shot()
-    screen.crop(Area.skill).save("skill_area.jpg")
-    screen.crop(Area.buff).save("buff_area.jpg")
-    screen.crop(Area.fu_wen).save("fu_wen_area.jpg")
-
 else:
     print("unknown cmd")

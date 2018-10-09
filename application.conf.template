@@ -1,0 +1,12 @@
+dm{
+    reg_code = ""
+    add_code = ""
+}
+
+si_ming{
+
+}
+
+fish{
+    size = 50
+}

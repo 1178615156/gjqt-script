@@ -5,9 +5,8 @@ from PIL.Image import Image
 
 from gjsp import Screen
 from gjsp.common import Windows, FindPic
-from gjsp.common.utensil import millisecond
-from gjsp.skill import skill_status
 from gjsp.common.const_value import *
+from gjsp.common.utensil import millisecond
 
 logger = logging.getLogger("skill")
 
@@ -17,8 +16,8 @@ class SkillLoop(Screen):
         super().__init__()
         self.start_time = millisecond()
         self.before_time = millisecond()
-        self.status: skill_status = None
         self.windows: Windows = windows
+        self.status = None
         self.__skill = None
 
     def mouse_tap_if_need(self):

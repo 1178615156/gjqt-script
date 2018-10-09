@@ -11,7 +11,9 @@ from gjsp.common.utensil import user_dir
 from gjsp.common.const_value import ConfigVal
 import random
 
+import logging
 
+_logger = logging.getLogger("dm")
 # def get_reg_code() -> List[List[str]]:
 #     return list(
 #         filter(lambda l: len(l) == 2,
@@ -39,7 +41,7 @@ class WindowsDm(Windows):
         start_time = millisecond()
         dm_ret = self.dll.Capture(0, 0, self.width, self.height, self.screen_file_name)
         end_time = millisecond()
-        print("shot screen time:%s " % (end_time - start_time))
+        _logger.debug("shot screen time:%s " % (end_time - start_time))
         self.check(dm_ret)
         return Image.open(self.screen_file_name)
 
@@ -82,7 +84,9 @@ class WindowsDm(Windows):
         self.hwnd = hwnd
         self.width = 1680
         self.height = 1050
+        self.mk_dir()
 
+    def mk_dir(self):
         self.user_dir = user_dir
         self.tmp_dir = user_dir + "image_tmp\\"
         self.screen_file_name = self.tmp_dir + "screen.bmp"

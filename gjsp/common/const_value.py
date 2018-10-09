@@ -13,10 +13,11 @@ img_mouse_right = goal_image("mouse_right.bmp")
 
 
 class Area:
-    fu_wen = (800, 800, 1000, 1080)
+    fu_wen = (750, 800, 1000, 1080)
     buff = (400, 800, 850, 900)
     skill = (0, 600, 400, 710)
     mouse_tap = (1000, 400, 1300, 600)
+    dot = (300, 40, 600, 200)
 
 
 class Global:
@@ -29,7 +30,7 @@ class SmVal:
     img_fu_wen_empty = goal_image("si_ming_fu_wen_empty.bmp")
     img_fu_wen_empty_plus = goal_image("si_ming_fu_wen_empty_plus.bmp")
 
-    img_fu_wen_some = goal_image("si_ming_fu_wen_some.bmp")
+    img_fu_wen_gun_si = goal_image("si_ming_fu_wen_some.bmp")
     img_fu_wen_wait = goal_image("si_ming_fu_wen_wait.bmp")
     img_fu_wen_jin_yu = goal_image("si_ming_fu_wen_jin_yu.bmp")
 
@@ -40,8 +41,14 @@ class SmVal:
     img_skill_hg_liu_guang = goal_image("si_ming_skill_hong_guang_liu_guang.bmp")
     img_skill_hg_ci_fu = goal_image("si_ming_skill_hong_guang_ci_fu.bmp")
 
+    dot_ben_huai_1 = goal_image("si_ming_dot_ben_huai_1.jpg")
+    dot_ben_huai_2 = goal_image("si_ming_dot_ben_huai_2.jpg")
+    dot_ben_huai_3 = goal_image("si_ming_dot_ben_huai_3.jpg")
+    dot_ben_huai_4 = goal_image("si_ming_dot_ben_huai_4.jpg")
+
 
 class ConfigVal:
     config = ConfigFactory.parse_file(user_dir + "application.conf")
     dm_reg_code = config.get("dm.reg_code", "")
     dm_add_code = config.get("dm.add_code", "")
+    fish_size = config.get("fish.size", 1)

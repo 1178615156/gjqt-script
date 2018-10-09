@@ -2,14 +2,14 @@ import logging
 import time
 from threading import Thread
 from typing import Dict
-from gjsp.common.utensil import millisecond
+from functional import seq
 from pyhooked import Hook, KeyboardEvent
 
 from gjsp.service.even_loop import EvenLoop
 
 _logger = logging.getLogger("even_loop")
 
-_press_key_file = open("D:/press_key.txt", "a")
+# _press_key_file = open("D:/press_key.txt", "a")
 
 
 class HotKey:
@@ -46,14 +46,11 @@ class HotKey:
 
     def run_even_loop(self):
         while True:
-            runed_even = None
-            for even in self.handler.values():
-                if even.is_run:
-                    runed_even = even
-                    even.run()
+            runed_even: EvenLoop = seq(self.handler.values()).find(lambda x: x.is_run)
             if runed_even is None:
                 time.sleep(0.1)
             else:
+                runed_even.run()
                 runed_even.delay()
 
 

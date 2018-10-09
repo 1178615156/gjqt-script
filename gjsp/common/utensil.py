@@ -25,11 +25,9 @@ def goal_image(file_name: str) -> Image.Image:
 
 def get_user_dir() -> str:
     _user_dir = abspath(os.getcwd())
-    i = 0
     while not os.path.exists(_user_dir + "\\image_goal"):
+        assert dirname(_user_dir) != _user_dir, "can not find image_goal in %s" % (os.getcwd())
         _user_dir = dirname(_user_dir)
-        i += 1
-        assert i < 10, "can not find image_goal in %s" % (os.getcwd())
     return str(_user_dir) + "\\"
 
 
