@@ -16,11 +16,13 @@ class SmSkill(Screen):
         super().__init__()
         skill_img = self.skill_img
         n = 44
+        self.windows = windows
         self.q = Skill("q", "q", windows, None)
         self.e = Skill("e", "e", windows, None)
         self.hong_guang = Skill("虹光", "6", windows, skill_img(n * 2 + 2))
         self.hong_guang_ci_fu = Skill("虹光-赐福", "6", windows, goal_image("si_ming_skill_hong_guang_ci_fu.bmp"))
-        self.hong_guang_free = Skill("虹光-免费", "6", windows, SmVal.img_buff_liu_guang)
+        self.hong_guang_free = Skill("虹光-免费", "6", windows, SmVal.buff_liu_guang)
+        self.hong_guang_mei_lan = Skill("虹光", "6", windows, SmVal.skill_hg_mei_lan)
         self.gun_si = Skill("滚石", "7", windows, [skill_img(n * 3)])
         self.min_si = Skill("名视", "8", windows, skill_img(n * 4 + 2))
         self.ci_fu = Skill("赐福", "9", windows, skill_img(n * 5 + 2))
@@ -38,3 +40,5 @@ class SmSkill(Screen):
         self.ci_fu.update(screen_skill)
         self.yu_hong.update(screen_skill)
         self.jin_yu.update(screen_skill)
+        self.hong_guang_mei_lan.update(screen_skill)
+

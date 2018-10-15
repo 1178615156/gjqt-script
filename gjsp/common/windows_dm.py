@@ -68,7 +68,7 @@ class WindowsDm(Windows):
         if self.is_free:
             print("start bind window")
             # dm_ret = self.dll.BindWindow(hwnd, "normal", "normal", "normal", 0)
-            dm_ret = self.dll.BindWindow(hwnd, "gdi", "normal", "windows", 0)
+            dm_ret = self.dll.BindWindow(hwnd, "gdi", "windows", "windows", 0)
             self.check(dm_ret, "bind is failure")
             print("bind window success")
         else:
@@ -76,7 +76,7 @@ class WindowsDm(Windows):
             self.check(dm_ret)
 
             print("start bind window")
-            dm_ret = self.dll.BindWindow(hwnd, "gdi", "normal", "windows", 0)
+            dm_ret = self.dll.BindWindow(hwnd, "gdi", "windows", "windows", 0)
             self.check(dm_ret, "bind is failure")
             print("bind window success")
 
@@ -103,25 +103,6 @@ class WindowsDm(Windows):
         dm_ret = self.dll.KeyUpChar(key)
         self.check(dm_ret)
 
-    def mouse_right_click(self):
-        dm_ret = self.dll.RIghtClick()
-        self.check(dm_ret)
-
-    def mouse_left_click(self):
-        dm_ret = self.dll.LeftClick()
-        self.check(dm_ret)
-
-        # if "+" in key:
-        #     keys = key.split("+")
-        #     for x in keys:
-        #         self.wait()
-        #         self.key_down(x)
-        #     for x in reversed(keys):
-        #         self.wait()
-        #         self.key_up(x)
-        # else:
-        #     dm_ret = self.dll.KeyPressChar(key)
-        #     self.check(dm_ret)
 
     def mouse_left_down(self):
         dm_ret = self.dll.LeftDown()

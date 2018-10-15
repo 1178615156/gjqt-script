@@ -54,7 +54,10 @@ class Skill(Screen):
         return self.__result
 
     def wait_time(self):
-        return (millisecond() - self.__ok_time) / 1000
+        if self.__ok_time is None:
+            return 0
+        else:
+            return (millisecond() - self.__ok_time) / 1000
 
     def freed(self):
         _logger.info("freed:%s - %s" % (self.name(), self.key()))
@@ -68,3 +71,10 @@ class Skill(Screen):
         _logger.info("up:%s - %s" % (self.name(), self.key()))
         self.__windows.key_up(self.key())
 
+    def auto(self):
+        self.just_up()
+        self.__windows.wait(0.05)
+        self.just_down()
+
+    def free_auto(self):
+        self.just_up()

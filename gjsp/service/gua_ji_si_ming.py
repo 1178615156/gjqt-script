@@ -1,12 +1,13 @@
 import logging
 import time
-
-from gjsp.common.windows_dm import WindowsDm
+from gjsp.common import WindowsBuild
 from gjsp.service.hot_key import HotKey
 from gjsp.common.utensil import millisecond
 from gjsp.service.even_loop import EvenLoop
-from gjsp.service.gua_ji import GjDps, GjDpsPve, GjDpsPvp
+from gjsp.service.gua_ji import GjDps
 from gjsp.skill.sm.sm_loop import SmSkillLoop
+from gjsp.skill.sm.sm_loop_pvp import SmSkillLoopPvp
+from gjsp.skill.sm.sm_loop_pve import SmSkillLoopPve
 
 
 class GjZiLiao(EvenLoop):
@@ -27,16 +28,16 @@ class GjZiLiao(EvenLoop):
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
-    windows = WindowsDm()
+    windows = WindowsBuild().build()
     gjqt_hwnd = list(windows.find_hwnd("古剑").keys())[0]
     windows.init(gjqt_hwnd)
 
     print("start %s" % gjqt_hwnd)
 
     hot_key = HotKey()
-    hot_key.add_handler(GjDps(name="gj-dps", key="F8", windows=windows, skill_loop=SmSkillLoop(windows)))
-    hot_key.add_handler(GjDpsPve(name="gj-dps-pve", key="F5", windows=windows, skill_loop=SmSkillLoop(windows)))
-    hot_key.add_handler(GjDpsPvp(name="gj-dps-pvp", key="F6", windows=windows, skill_loop=SmSkillLoop(windows)))
+    hot_key.add_handler(GjDps(name="gj-dps", key="F8", windows=windows, skill_loop=SmSkillLoopPve(windows)))
+    hot_key.add_handler(GjDps(name="gj-dps-pve", key="F5", windows=windows, skill_loop=SmSkillLoopPve(windows)))
+    hot_key.add_handler(GjDps(name="gj-dps-pvp", key="F6", windows=windows, skill_loop=SmSkillLoopPvp(windows)))
     hot_key.add_handler(GjZiLiao(name="gj-zi-liao", key="F7", windows=windows))
     hot_key.start_hook()
     hot_key.run_even_loop()

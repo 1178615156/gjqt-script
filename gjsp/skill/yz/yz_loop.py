@@ -1,14 +1,9 @@
-import logging
 import time
+from enum import Enum
+
 from gjsp import Screen
 from gjsp.skill import Skill
-
-from gjsp.common import Windows
-from gjsp.common.const_value import SmVal
-from gjsp.common.utensil import millisecond
-from gjsp.skill import SkillStatus, SkillLoop
-
-from enum import Enum
+from gjsp.skill import SkillLoop
 
 
 class YzSkill(Screen):
@@ -44,28 +39,28 @@ class YzSkillLoop(SkillLoop):
         self.become(Status.Q1)
 
     def run(self):
-        def wait_next():
+        def wait_skill():
             time.sleep(0.6)
 
         if self.status is Status.Q1:
             self.skill().q.freed()
             self.ka_dao()
             self.skill().e.freed()
-            wait_next()
-            self.become(Status.Q2)
-
-        if self.status is Status.Q2:
-            self.skill().q.freed()
-            self.ka_dao()
-            self.skill().q.freed()
-            time.sleep(0.5)
+            wait_skill()
             self.become(Status.Q3)
+
+        # if self.status is Status.Q2:
+        #     self.skill().q.freed()
+        #     self.ka_dao()
+        #     self.skill().q.freed()
+        #     time.sleep(0.5)
+        #     self.become(Status.Q3)
 
         if self.status is Status.Q3:
             self.skill().q.freed()
             self.ka_dao()
             self.skill().e.freed()
-            wait_next()
+            wait_skill()
             self.become(Status.CDD)
 
         if self.status is Status.CDD:

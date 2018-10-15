@@ -1,10 +1,12 @@
 import logging
 import time
 
+from functional import seq
+
 from gjsp.common import Windows
 from gjsp.common.const_value import SmVal
 from gjsp.common.utensil import millisecond
-from gjsp.skill import SkillStatus, SkillLoop
+from gjsp.skill import SkillLoop
 from gjsp.skill.sm import SmLingLi, SmFuWen, SmSkill, SmDot
 
 _logger = logging.getLogger("skill")
@@ -14,83 +16,119 @@ class SmSkillLoop(SkillLoop):
 
     def __init__(self, windows: Windows):
         super().__init__(windows)
-        self.__ling_li: SmLingLi = SmLingLi()
-        self.__skills: SmSkill = SmSkill(windows)
-        self.__fu_wen: SmFuWen = SmFuWen()
-        self.__dot: SmDot = SmDot()
-        self.is_pve = True
-        self.is_pvp = False
+        self.__ling_li = SmLingLi()
+        self.__skills = SmSkill(windows)
+        self.__fu_wen = SmFuWen()
+        self.__dot = SmDot()
+        self._logger = _logger
+        self.is_test = False
+        self.ci_fu_ling_li = 48
 
-    def skill(self):
+    def test(self):
+        self.update()
+
+    def skill(self) -> SmSkill:
         return self.__skills
 
-    def ling_li(self):
+    def ling_li(self) -> SmLingLi:
         return self.__ling_li
 
-    def fu_wen(self):
+    def fu_wen(self) -> SmFuWen:
         return self.__fu_wen
 
-    def dot(self):
+    def dot(self) -> SmDot:
         return self.__dot
 
-    def update(self, screen=None):
-        start_time = millisecond()
-
-        super().update(screen)
-        super_time = millisecond()
-
-        self.skill().update(self.screen())
-        skill_time = millisecond()
-
-        self.ling_li().update(self.screen())
-        ling_li_time = millisecond()
-
-        self.fu_wen().update(self.screen())
-        self.dot().update(self.screen())
-        end_time = millisecond()
-
-        _logger.debug("update time :%s,super:%s, skill:%s, ll:%s, fu_wen:%s" %
-                      (end_time - start_time,
-                       super_time - start_time,
-                       skill_time - super_time,
-                       ling_li_time - skill_time,
-                       end_time - ling_li_time))
-
-    def auto_q(self):
-        self.skill().q.just_down()
-
-    def free_q(self):
-        self.skill().q.just_up()
-
-    ### status logic loop
-    def start(self):
-        self.skill().q.just_down()
-
-        for i in range(4):
-            self.skill().gun_si.freed()
-            self.wait(0.2)
-
+    def ka_dao(self):
         self.wait(0.2)
-        self.skill().min_si.freed()
 
-    def normal(self):
+    def freed_hong_guang(self):
         skill = self.skill()
         fu_wen = self.fu_wen()
         dot = self.dot()
+        condition = lambda: seq(
+            dot.exist_ben_huai(1),
+            skill.hong_guang_free.wait_time() > 3,
+            (not fu_wen.exist(SmVal.img_fu_wen_gun_si)))
 
-        self.skill().q.just_up()
-        self.wait(0.05)
-        self.skill().q.just_down()
+        def hong_guang_after():
+            self.wait(1.1)
+            self.update()
 
-        if self.ling_li().score() < 50 and skill.ci_fu.is_ok():
-            self.skill().ci_fu.freed()
-            self.wait(0.2)
+        if skill.hong_guang_ci_fu.is_ok():
             skill.hong_guang_ci_fu.freed()
+            hong_guang_after()
+
+        if skill.hong_guang_free.is_ok():
+            if condition().exists(lambda x: x):
+                skill.hong_guang_free.freed()
+                hong_guang_after()
+
+        if self.skill().hong_guang_mei_lan.is_ok():
+            _logger.info("hong guan mei lan wait to 25")
+            self.wait_ling_li_to(25)
+            self.freed_hong_guang()
             return
+
+        if skill.hong_guang.is_ok():
+            if condition().exists(lambda x: x):
+                skill.hong_guang.freed()
+                hong_guang_after()
+
+    def freed_e(self):
+        skill = self.skill()
+
+        if millisecond() - self.before_time > 1300:
+            skill.e.freed()
+            self.update_time()
+            return
+
+    def freed_ci_fu(self):
+        skill = self.skill()
+        skill.q.free_auto()
+        self.random_wait()
+        skill.ci_fu.freed()
+        self.wait(0.6)
+        while True:
+            self.update()
+            if self.skill().hong_guang_ci_fu.is_ok():
+                self.skill().hong_guang_ci_fu.freed()
+                self.wait(0.2)
+            elif self.skill().hong_guang_free.is_ok():
+                self.skill().hong_guang_free.freed()
+                self.wait(0.2)
+            elif self.exist_buffer(SmVal.buff_zu_fu):
+                self.skill().q.auto()
+                self.wait(0.2)
+            else:
+                skill.q.auto()
+                self._logger.info("freed ci fu - end ")
+                return
+
+    def wait_ling_li_to(self, n):
+        while self.ling_li().score() < n and self.exec_func == self.normal:
+            self.skill().q.auto()
+            self.freed_default_skill()
+            self.update()
+            self.wait()
+        _logger.info("wait ling li to %s" % (n))
+
+    def start(self):
+        while self.fu_wen().is_ok():
+            self.skill().gun_si.freed()
+            self.wait(0.1)
+            self.update()
+        self.become(self.normal)
+
+    def freed_default_skill(self):
+        skill = self.skill()
+        fu_wen = self.fu_wen()
 
         if fu_wen.is_wait() and skill.yu_hong.is_ok():
             self.wait()
             skill.yu_hong.freed()
+            self.wait()
+            skill.gun_si.freed()
             return
 
         if skill.gun_si.is_ok() or fu_wen.is_ok():
@@ -101,93 +139,55 @@ class SmSkillLoop(SkillLoop):
             skill.min_si.freed()
             self.wait()
 
-        if self.exist_buffer(SmVal.img_buff_qjwh):
-            self.free_q()
-            self.become(SkillStatus.Explosive)
+        if self.exist_buffer(SmVal.buff_qjwh):
+            self.become(self.explosive)
+            skill.q.free_auto()
+            self.windows.key_up("shift")
+            skill.e.auto()
             return
 
-        if self.is_pvp:
-            if skill.hong_guang.is_ok() or skill.hong_guang_free.is_ok() or skill.hong_guang_ci_fu.is_ok():
-                skill.hong_guang.freed()
+    def normal(self):
+        skill = self.skill()
+        fu_wen = self.fu_wen()
+        skill.q.auto()
 
-        if self.is_pve:
-            if skill.hong_guang_free.is_ok():
-                if dot.exist_ben_huai(1):
-                    skill.hong_guang_free.freed()
-                if skill.hong_guang_free.wait_time() > 3:
-                    skill.hong_guang_free.freed()
-                if not fu_wen.exist(SmVal.img_fu_wen_gun_si):
-                    skill.hong_guang_free.freed()
+        self.freed_default_skill()
 
-            if skill.hong_guang_ci_fu.is_ok():
-                skill.hong_guang_ci_fu.freed()
+        if skill.ci_fu.is_ok():
+            self.wait_ling_li_to(self.ci_fu_ling_li)
+            if self.exec_func == self.explosive:
+                return
+            self.freed_ci_fu()
 
-            if skill.hong_guang.is_ok() and dot.exist_ben_huai(1):
-                skill.hong_guang.freed()
-
-        if not self.exist_buffer(SmVal.img_buff_zu_fu) and (millisecond() - self.before_time > 1500):
-            skill.e.freed()
-            self.update_time()
-            return
+        self.freed_hong_guang()
+        self.freed_e()
 
     def explosive(self):
-        if self.exist_buffer(SmVal.img_buff_qjwh):
-            self.skill().e.just_down()
+        if self.exist_buffer(SmVal.buff_qjwh):
+            if self.ling_li().score() < 15:
+                self.skill().q.freed()
+            else:
+                self.skill().e.auto()
+                time.sleep(0.2)
         else:
             self.skill().e.just_up()
-            self.become(SkillStatus.Normal)
+            self.become(self.normal)
 
     def clear(self):
-        if self.status is not None:
-            self.status = None
+        if self.exec_func is not None:
+            self.exec_func = None
             time.sleep(0.1)
-            self.free_q()
+            self.skill().q.free_auto()
             print("clear")
 
-    def pve(self):
-        self.is_pve = True
-        self.is_pvp = False
-        self.update()
-        if self.status is None:
-            print("pve start")
-            self.start_time = millisecond()
-            self.skill().yu_hong.freed()
-            self.wait(0.2)
-        self.run()
-
-    def pvp(self):
-        self.is_pve = False
-        self.is_pvp = True
-        self.update()
-        if self.status is None:
-            if self.skill().jin_yu.is_ok():
-                self.start_time = millisecond()
-                self.skill().jin_yu.freed()
-                self.wait(0.3)
-                self.update()
-                if self.exist_fu_wen(SmVal.img_fu_wen_jin_yu):
-                    _logger.info("金羽 释放成功")
-                    self.skill().hong_guang.freed()
-                    self.run()
-                else:
-                    _logger.info("金羽 释放失败")
-                return
-        self.run()
-
     def run(self):
-        if self.mouse_tap_if_need():
-            logging.info("mouse tap")
+        if self.is_test:
+            self.test()
             return
-
-        elif self.status is None:
-            self.become(SkillStatus.Start)
-
-        elif self.status is SkillStatus.Start:
-            self.start()
-            self.become(SkillStatus.Normal)
-
-        elif self.status is SkillStatus.Normal:
-            self.normal()
-
-        elif self.status is SkillStatus.Explosive:
-            self.explosive()
+        if self.exec_func is None:
+            self.start_time = millisecond()
+            self.become(self.start)
+        else:
+            self.update()
+            self.exec_func()
+        time.sleep(0.2)

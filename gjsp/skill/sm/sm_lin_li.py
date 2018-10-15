@@ -4,20 +4,20 @@ from gjsp.skill.ling_li import LingLi
 
 
 class SmLingLi(LingLi):
-    area_ling_li = (440, 895, 750, 915)
-    a, b = (274.635922330097, -98.74029126213588)
+    area_ling_li = (444, 898, 750, 913)
+    a, b = (115.31076412, 2.00410678)
 
-    def ling_li_pretreatment(self, img):
-        x = np.array(img) - self.ling_li_default_color
-        x = np.mean(x, axis=2)
-        x = (x - np.min(x)) / (np.max(x) - np.min(x))
-        x = x > 0.4
-        x = x * 255
-        x = x.astype("uint8")
-        return x
+    @staticmethod
+    def pretreatment(img):
+        r, g, b = img.split()
+        b = np.array(b)
+        b = b > 190
+        b = b * 255
+        return b
 
-    def area_size(self, img):
-        x = self.ling_li_pretreatment(img)
+    @staticmethod
+    def area_size(img):
+        x = SmLingLi.pretreatment(img)
         return np.count_nonzero(x) / x.size
 
     def score(self):

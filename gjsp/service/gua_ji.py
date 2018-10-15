@@ -17,14 +17,6 @@ class GjDps(EvenLoop):
         self.skill_loop.update(None)
         self.skill_loop.run()
 
-    def delay(self):
-        time.sleep(0.22)
-
-class GjDpsPve(GjDps):
-    def run(self):
-        self.skill_loop.pve()
+    def delay(self): pass
 
 
-class GjDpsPvp(GjDps):
-    def run(self):
-        self.skill_loop.pvp()

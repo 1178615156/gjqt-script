@@ -12,10 +12,22 @@
 #                      win32api.MapVirtualKey(win32con.VK_NUMPAD7,3),
 #                      win32con.KEYEVENTF_EXTENDEDKEY | win32con.KEYEVENTF_KEYUP,
 #                      0)  # r
-import random
-
-print(random.randint(40,60))
-
+# import random
+#
+# print(random.randint(40,60))
+#
+# from functional import seq
+# print(seq(0).find(lambda x:x==1))
+# print(seq(None,None))
 from functional import seq
-print(seq(0).find(lambda x:x==1))
-print(seq(None,None))
+class A:
+    def __init__(self):
+        self.a = 1
+        self.b = 2
+        self.c = "c"
+
+a = A()
+# for k,v in (vars(a).items()):
+#     print(k,v)
+l=seq(vars(a).items()).filter(lambda k:type(k[1]) is int )
+print(l)

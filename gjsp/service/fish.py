@@ -4,7 +4,7 @@ import numpy as np
 from PIL import Image, ImageDraw
 from gjsp.common.utensil import user_dir, goal_image
 from gjsp.common.find_pic import FindPic
-from gjsp.common import WindowsDm
+from gjsp.common import WindowsBuild
 
 
 class Fish:
@@ -86,12 +86,12 @@ class Fish:
 
 if __name__ == '__main__':
     print("start fish")
-    windows = WindowsDm()
+    windows = WindowsBuild().build()
     gjqt_hwnd = list(windows.find_hwnd("古剑").keys())[0]
     print(gjqt_hwnd)
     windows.init(gjqt_hwnd)
 
-    for i in range(50):
+    for i in range(49):
         print(i)
         Fish(gjqt_hwnd, windows).run()
 #

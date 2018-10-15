@@ -3,7 +3,6 @@ import time
 import win32gui
 from ctypes import windll
 from typing import Dict
-
 from PIL import Image
 
 
@@ -39,27 +38,26 @@ class Windows:
         keys = key.split("+")
         for x in keys:
             self.key_down(x)
-            time.sleep(random.randint(40, 60) * 0.001)
+            self.random_wait()
         for x in reversed(keys):
             self.key_up(x)
-            time.sleep(random.randint(40, 60) * 0.001)
+            self.random_wait()
 
     def mouse_left_click(self):
-        self.mouse_left_up()
-        self.random_wait()
         self.mouse_left_down()
         self.random_wait()
         self.mouse_left_up()
 
     def mouse_right_click(self):
-        self.mouse_right_up()
-        self.random_wait()
         self.mouse_right_down()
         self.random_wait()
         self.mouse_right_up()
 
     def random_wait(self):
         time.sleep(random.randint(40, 60) * 0.001)
+
+    def wait(self, t=0.1):
+        time.sleep(t)
 
     def init(self, hwnd):
         user32 = windll.user32
