@@ -19,15 +19,26 @@
 # from functional import seq
 # print(seq(0).find(lambda x:x==1))
 # print(seq(None,None))
-from functional import seq
-class A:
-    def __init__(self):
-        self.a = 1
-        self.b = 2
-        self.c = "c"
+# from functional import seq
+# class A:
+#     def __init__(self):
+#         self.a = 1
+#         self.b = 2
+#         self.c = "c"
+#
+# a = A()
+# # for k,v in (vars(a).items()):
+# #     print(k,v)
+# l=seq(vars(a).items()).filter(lambda k:type(k[1]) is int )
+# print(l)
 
-a = A()
-# for k,v in (vars(a).items()):
-#     print(k,v)
-l=seq(vars(a).items()).filter(lambda k:type(k[1]) is int )
-print(l)
+# from queue import Queue
+# q = Queue(4)
+# q.put(1)
+# q.put(2)
+# q.put(3)
+# q.put(4)
+# q.put(6)
+# print(q.get())
+d  = {1:1}
+print(d.get(2))

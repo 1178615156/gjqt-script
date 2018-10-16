@@ -89,7 +89,7 @@ if __name__ == '__main__':
     windows = WindowsBuild().build()
     gjqt_hwnd = list(windows.find_hwnd("古剑").keys())[0]
     print(gjqt_hwnd)
-    windows.init(gjqt_hwnd)
+    windows.init_status(gjqt_hwnd)
 
     for i in range(49):
         print(i)

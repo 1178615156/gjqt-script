@@ -62,14 +62,17 @@ class Skill(Screen):
     def freed(self):
         _logger.info("freed:%s - %s" % (self.name(), self.key()))
         self.__windows.key_press(self.key())
+        self.__windows.wait(0.05)
 
     def just_down(self):
         _logger.info("down:%s - %s" % (self.name(), self.key()))
         self.__windows.key_down(self.key())
+        self.__windows.wait(0.05)
 
     def just_up(self):
         _logger.info("up:%s - %s" % (self.name(), self.key()))
         self.__windows.key_up(self.key())
+        self.__windows.wait(0.05)
 
     def auto(self):
         self.just_up()
