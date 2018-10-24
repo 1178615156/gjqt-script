@@ -28,7 +28,11 @@ class FSM:
         self.status_action()[status] = action
 
     def add_transform(self, from_, to_, action):
-        self.transform()[(from_, to_)] = action
+        if not type(from_) is list:
+            from_ = [from_]
+
+        for x in from_ :
+            self.transform()[(x, to_)] = action
 
     def become(self, new_status):
         self.__status_history.append(self.current_status())

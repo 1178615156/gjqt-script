@@ -2,15 +2,15 @@ import ctypes
 import sys
 import time
 
+from functional import seq
+
 from gjsp.common import Windows
 from gjsp.common.const_value import ConfigVal, Area
 from gjsp.common.windows_dm import WindowsDm
 from gjsp.service.fish import Fish
-from gjsp.service.gua_ji import GjDpsPve
+from gjsp.service.gua_ji import GjDps
 from gjsp.service.hot_key import HotKey
-from gjsp.skill.sm.sm_loop import SmSkillLoop
-from functional import seq
-
+from gjsp.skill.sm import SmSkillLoopFsmPve
 
 if not ctypes.windll.shell32.IsUserAnAdmin():
     print("not admin , can not run")
@@ -76,7 +76,7 @@ elif opt() == "si-ming-gua-ji":
         【F5】键启动,再次按【F5】退出
     """)
     hot_key = HotKey()
-    hot_key.add_handler(GjDpsPve(name="gj-dps-pve", key="F5", windows=windows, skill_loop=SmSkillLoop(windows)))
+    hot_key.add_handler(GjDps(name="gj-dps-pve", key="F5", windows=windows, skill_loop=SmSkillLoopFsmPve(windows)))
     hot_key.start_hook()
     hot_key.run_even_loop()
 else:

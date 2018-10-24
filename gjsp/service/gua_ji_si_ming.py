@@ -13,7 +13,9 @@ if __name__ == '__main__':
     print("start %s" % gjqt_hwnd)
 
     hot_key = HotKey()
-    hot_key.add_handler(GjDps(name="gj-dps-pve", key="F5", windows=windows, skill_loop=SmSkillLoopFsmPve(windows)))
+    X = SmSkillLoopFsmPve(windows)
+    # hot_key.add_handler(GjDps(name="gj-dps-pve", key="F5", windows=windows, skill_loop=X))
+    hot_key.add_handler(GjDps(name="gj-dps-pve", key="Capital", windows=windows, skill_loop=X))
     hot_key.add_handler(GjDps(name="gj-dps-pvp", key="F6", windows=windows, skill_loop=SmSkillLoopFsmPvp(windows)))
     hot_key.add_handler(GjZiLiao(name="gj-zi-liao", key="F7", windows=windows))
     hot_key.start_hook()

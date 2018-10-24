@@ -29,12 +29,14 @@ class SmSkillLoopFsmPve(SkillLoop):
         self.ci_fu_ling_li = 48
         self.status_value = 0
         self.init_status(Status.Start)
+
         self.add_action(Status.Start, self.action_start)
         self.add_action(Status.WaitLingLi, self.action_wait_ling_li)
         self.add_action(Status.Normal, self.action_normal)
         self.add_action(Status.Explosive, self.action_explosive)
         self.add_action(Status.CiFu, self.action_ci_fu)
-        self.add_transform(Status.Normal, Status.Explosive, self.transform_normal_2_explosive)
+
+        self.add_transform([Status.Normal, Status.CiFu,Status.WaitLingLi], Status.Explosive, self.transform_any_2_explosive)
         self.add_transform(Status.Normal, Status.CiFu, self.transform_normal_2_ci_fu)
 
     def skill(self) -> SmSkill:
@@ -84,7 +86,10 @@ class SmSkillLoopFsmPve(SkillLoop):
             else:
                 self.status_value = self.ci_fu_ling_li
                 self.become(Status.WaitLingLi)
-        elif millisecond() - self.before_time > 1300:
+        elif self.ling_li().score() <= 25 and millisecond() - self.before_time > 1500:
+            skill.e.freed()
+            self.update_time()
+        elif self.ling_li().score() > 25 and millisecond() - self.before_time > 1000:
             skill.e.freed()
             self.update_time()
         else:
@@ -123,10 +128,13 @@ class SmSkillLoopFsmPve(SkillLoop):
 
     def action_ci_fu(self):
         skill = self.skill()
-        if skill.hong_guang_ci_fu.is_ok():
+        if self.exist_buffer(SmVal.buff_qjwh):
+            self.become(Status.Explosive)
+        elif skill.hong_guang_ci_fu.is_ok():
             skill.hong_guang_ci_fu.freed()
         elif skill.hong_guang_free.is_ok():
             skill.hong_guang_free.freed()
+            self.wait(0.3)
         else:
             skill.q.auto()
             self.un_become()
@@ -137,7 +145,7 @@ class SmSkillLoopFsmPve(SkillLoop):
         skill.ci_fu.freed()
         self.wait(0.6)
 
-    def transform_normal_2_explosive(self):
+    def transform_any_2_explosive(self):
         skill = self.skill()
         skill.q.free_auto()
         self.windows.key_up("shift")
@@ -169,6 +177,12 @@ class SmSkillLoopFsmPve(SkillLoop):
     def clear(self):
         super().clear()
         self.skill().q.free_auto()
+        self.delay()
+        self.windows.key_press("5")
+        self.delay()
+        self.skill().q.free_auto()
+        self.delay()
+        self.windows.key_press("5")
 
 
 class SmSkillLoopFsmPvp(SmSkillLoopFsmPve):
@@ -184,3 +198,13 @@ class SmSkillLoopFsmPvp(SmSkillLoopFsmPve):
                 super().action_start()
             else:
                 self.logger().info("金羽 释放失败")
+
+    def freed_hong_guang(self):
+        skill = self.skill()
+
+        if skill.hong_guang_ci_fu.is_ok():
+            skill.hong_guang_ci_fu.freed()
+        elif skill.hong_guang_free.is_ok():
+            skill.hong_guang_free.freed()
+        elif skill.hong_guang.is_ok():
+            skill.hong_guang_free.freed()

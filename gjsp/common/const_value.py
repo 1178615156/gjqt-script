@@ -43,11 +43,12 @@ class SmVal:
     skill_hg_ci_fu = goal_image("si_ming_skill_hong_guang_ci_fu.bmp")
     skill_hg_mei_lan = goal_image("si_ming_skill_hong_guang_mei_lan.bmp")
 
-
     dot_ben_huai_1 = goal_image("si_ming_dot_ben_huai_1.jpg")
     dot_ben_huai_2 = goal_image("si_ming_dot_ben_huai_2.jpg")
     dot_ben_huai_3 = goal_image("si_ming_dot_ben_huai_3.jpg")
     dot_ben_huai_4 = goal_image("si_ming_dot_ben_huai_4.jpg")
+
+    ling_li_word = goal_image("si_ming_ling_li_word.jpg")
 
 
 class ConfigVal:
