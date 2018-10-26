@@ -1,5 +1,5 @@
 ## 基本使用使用
-1. 下载 [脚本](https://pan.baidu.com/s/1egtPQg85stBGr10x_6NubA)  
+1. [下载 脚本](https://pan.baidu.com/s/1egtPQg85stBGr10x_6NubA)  
 2. 解压到`C:\gjqt-script`(啥,你解压到D盘...复制过去就好了)
 3. 按下`win`键输出 `cmd`  会看到`命令提示符` 或`命令行` 之类的东西,右键`以管理员身份运行`
 4. 输入 `cd C:\gjqt-script` 回车
