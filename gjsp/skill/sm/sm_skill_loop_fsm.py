@@ -36,7 +36,8 @@ class SmSkillLoopFsmPve(SkillLoop):
         self.add_action(Status.Explosive, self.action_explosive)
         self.add_action(Status.CiFu, self.action_ci_fu)
 
-        self.add_transform([Status.Normal, Status.CiFu,Status.WaitLingLi], Status.Explosive, self.transform_any_2_explosive)
+        self.add_transform([Status.Normal, Status.CiFu, Status.WaitLingLi], Status.Explosive,
+                           self.transform_any_2_explosive)
         self.add_transform(Status.Normal, Status.CiFu, self.transform_normal_2_ci_fu)
 
     def skill(self) -> SmSkill:
@@ -75,10 +76,9 @@ class SmSkillLoopFsmPve(SkillLoop):
         skill = self.skill()
         skill.q.auto()
         self.freed_default_skill()
-        self.freed_hong_guang()
 
-        if skill.hong_guang_mei_lan.is_ok():
-            self.status_value = 25
+        if skill.hong_guang_mei_lan.is_ok() and self.ling_li().score() < 26:
+            self.status_value = 30
             self.become(Status.WaitLingLi)
         elif skill.ci_fu.is_ok():
             if self.ling_li().score() > self.ci_fu_ling_li:
@@ -86,10 +86,12 @@ class SmSkillLoopFsmPve(SkillLoop):
             else:
                 self.status_value = self.ci_fu_ling_li
                 self.become(Status.WaitLingLi)
+        elif skill.hong_guang.is_ok():
+            self.freed_hong_guang()
         elif self.ling_li().score() <= 25 and millisecond() - self.before_time > 1500:
             skill.e.freed()
             self.update_time()
-        elif self.ling_li().score() > 25 and millisecond() - self.before_time > 1000:
+        elif self.ling_li().score() > 25 and millisecond() - self.before_time > 1001:
             skill.e.freed()
             self.update_time()
         else:
@@ -121,6 +123,7 @@ class SmSkillLoopFsmPve(SkillLoop):
             if not fu_wen.exist(SmVal.img_fu_wen_gun_si):
                 skill.hong_guang_free.freed()
         elif skill.hong_guang.is_ok():
+            # skill.hong_guang.freed()
             if dot.exist_ben_huai(1):
                 skill.hong_guang_free.freed()
             if not fu_wen.exist(SmVal.img_fu_wen_gun_si):
@@ -134,7 +137,7 @@ class SmSkillLoopFsmPve(SkillLoop):
             skill.hong_guang_ci_fu.freed()
         elif skill.hong_guang_free.is_ok():
             skill.hong_guang_free.freed()
-            self.wait(0.3)
+            self.wait(0.5)
         else:
             skill.q.auto()
             self.un_become()

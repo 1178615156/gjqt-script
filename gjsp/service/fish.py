@@ -91,7 +91,7 @@ if __name__ == '__main__':
     print(gjqt_hwnd)
     windows.init(gjqt_hwnd)
 
-    for i in range(200):
+    for i in range(10):
         print(i)
         Fish(gjqt_hwnd, windows).run()
 #

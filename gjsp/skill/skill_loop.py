@@ -43,7 +43,7 @@ class SkillLoop(FSM, Screen):
         for name, value in wait_update_attr:
             start_time = millisecond()
             value.update(self.screen())
-            exec_time[name.replace(self.__class__.__name__, "")] = millisecond() - start_time
+            exec_time[name.replace(self.__class__.__qualname__, "")] = millisecond() - start_time
         self.logger().info("update time -- %s" % (str(exec_time)))
 
     def exist_buffer(self, img):

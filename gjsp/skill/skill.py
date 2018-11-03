@@ -17,7 +17,8 @@ class Skill(Screen):
         self.__key = key
         self.__windows = windows
         self.__icons = self.process_icons(icons)
-        self.__result = None
+        self.__ok = None
+        self.__first_ok_time = None
         self.__ok_time = None
 
     def process_icons(self, icons):
@@ -39,35 +40,44 @@ class Skill(Screen):
 
     def update(self, screen):
         super().update(screen)
-        if self.__icons is not None:
-            self.__result = \
-                seq(self.icons()) \
-                    .map(lambda e: FindPic(self.screen(), e, sim=0.99).isFind()) \
-                    .exists(lambda x: x)
-            if self.__result:
-                if self.__ok_time is None:
-                    self.__ok_time = millisecond()
-            else:
-                self.__ok_time = None
+        if self.icons() is None:
+            return
+        result = seq(self.icons()).map(lambda e: FindPic(self.screen(), e, sim=0.99).isFind()).exists(lambda x: x)
+        if not result and self.__ok and (millisecond() - self.__ok_time < 1500):
+            pass
+        elif not result:
+            self.__ok = result
+            self.__ok_time = None
+            self.__first_ok_time = None
+        elif result and self.__ok:
+            self.__ok_time = millisecond()
+        elif result and not self.__ok:
+            self.__ok = result
+            self.__ok_time = millisecond()
+            self.__first_ok_time = millisecond()
 
     def is_ok(self) -> bool:
-        return self.__result
+        return self.__ok
 
     def wait_time(self):
-        if self.__ok_time is None:
+        if self.__first_ok_time is None:
             return 0
         else:
-            return (millisecond() - self.__ok_time) / 1000
+            return (millisecond() - self.__first_ok_time) / 1000
 
     def freed(self):
         _logger.info("freed:%s - %s" % (self.name(), self.key()))
         self.__windows.key_press(self.key())
         self.__windows.wait(0.05)
+        self.__ok = None
+        self.__first_ok_time = None
 
     def just_down(self):
         _logger.info("down:%s - %s" % (self.name(), self.key()))
         self.__windows.key_down(self.key())
         self.__windows.wait(0.05)
+        self.__ok = None
+        self.__first_ok_time = None
 
     def just_up(self):
         _logger.info("up:%s - %s" % (self.name(), self.key()))

@@ -14,3 +14,12 @@ class TestSmSkillLoopFsmPve(TestCase):
         obj.update()
         print(obj.ling_li().score())
         print(obj.ling_li().area)
+
+    def test_fu_wen(self):
+        obj = self.obj
+        obj.update()
+        fu_wen = obj.fu_wen()
+        print(fu_wen.is_ok())
+        print(fu_wen.wait_fu_wen_1)
+        print(fu_wen.wait_fu_wen_2)
+        print(fu_wen.wait_fu_wen_3)

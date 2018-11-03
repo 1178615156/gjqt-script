@@ -34,6 +34,8 @@ class SmVal:
     img_fu_wen_wait = goal_image("si_ming_fu_wen_wait.bmp")
     img_fu_wen_jin_yu = goal_image("si_ming_fu_wen_jin_yu.bmp")
 
+    fu_wen_icon = goal_image("si_ming_fu_wen_icon.jpg")
+
     buff_qjwh = goal_image("si_ming_buff_qjwh.bmp")
     buff_zu_fu = goal_image("si_ming_buff_ci_fu.bmp")
     buff_zu_fu_full = goal_image("si_ming_buff_ci_fu_full.bmp")
