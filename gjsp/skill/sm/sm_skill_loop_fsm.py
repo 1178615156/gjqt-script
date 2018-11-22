@@ -26,7 +26,9 @@ class SmSkillLoopFsmPve(SkillLoop):
         self.__dot = SmDot()
         self._logger = logging.getLogger("sm-skill")
         self.is_test = False
-        self.ci_fu_ling_li = 48
+        self.ling_li_ci_fu = 48
+        self.ling_li_min = 30
+        self.ling_li_ka_dao = 50
         self.status_value = 0
         self.init_status(Status.Start)
 
@@ -56,10 +58,12 @@ class SmSkillLoopFsmPve(SkillLoop):
         self.wait(0.2)
 
     def action_start(self):
-        while self.fu_wen().is_ok():
-            self.skill().gun_si.freed()
-            self.wait(0.1)
+        while self.freed_cong_wu():
             self.update()
+        # while self.fu_wen().is_ok():
+        #     self.skill().gun_si.freed()
+        #     self.wait(0.1)
+        #     self.update()
         self.become(Status.Normal)
 
     def action_wait_ling_li(self):
@@ -76,22 +80,26 @@ class SmSkillLoopFsmPve(SkillLoop):
         skill = self.skill()
         skill.q.auto()
         self.freed_default_skill()
+        ling_li_min = self.ling_li_min
 
-        if skill.hong_guang_mei_lan.is_ok() and self.ling_li().score() < 26:
-            self.status_value = 30
+        if skill.hong_guang_mei_lan.is_ok() and self.ling_li().score() < ling_li_min:
+            self.status_value = ling_li_min
             self.become(Status.WaitLingLi)
         elif skill.ci_fu.is_ok():
-            if self.ling_li().score() > self.ci_fu_ling_li:
+            if self.ling_li().score() > self.ling_li_ci_fu:
                 self.become(Status.CiFu)
             else:
-                self.status_value = self.ci_fu_ling_li
+                self.status_value = self.ling_li_ci_fu
                 self.become(Status.WaitLingLi)
-        elif skill.hong_guang.is_ok():
-            self.freed_hong_guang()
-        elif self.ling_li().score() <= 25 and millisecond() - self.before_time > 1500:
+        elif self.freed_hong_guang():
+            pass
+        elif self.ling_li().score() <= self.ling_li_min:
+            pass
+            self.update_time()
+        elif self.ling_li().score() <= self.ling_li_ka_dao and millisecond() - self.before_time > 1501:
             skill.e.freed()
             self.update_time()
-        elif self.ling_li().score() > 25 and millisecond() - self.before_time > 1001:
+        elif self.ling_li().score() > self.ling_li_ka_dao and millisecond() - self.before_time > 1001:
             skill.e.freed()
             self.update_time()
         else:
@@ -115,19 +123,22 @@ class SmSkillLoopFsmPve(SkillLoop):
 
         if skill.hong_guang_ci_fu.is_ok():
             skill.hong_guang_ci_fu.freed()
-        elif skill.hong_guang_free.is_ok():
-            if dot.exist_ben_huai(1):
-                skill.hong_guang_free.freed()
-            if skill.hong_guang_free.wait_time() > 3:
-                skill.hong_guang_free.freed()
-            if not fu_wen.exist(SmVal.img_fu_wen_gun_si):
-                skill.hong_guang_free.freed()
-        elif skill.hong_guang.is_ok():
-            # skill.hong_guang.freed()
-            if dot.exist_ben_huai(1):
-                skill.hong_guang_free.freed()
-            if not fu_wen.exist(SmVal.img_fu_wen_gun_si):
-                skill.hong_guang_free.freed()
+            return True
+        elif skill.hong_guang_free.is_ok() and (
+                dot.exist_ben_huai(1) or
+                dot.exist_ling_li() or
+                skill.hong_guang_free.wait_time() > 3 or
+                not fu_wen.exist(SmVal.img_fu_wen_gun_si)):
+            skill.hong_guang_free.freed()
+            return True
+        elif skill.hong_guang.is_ok() and (
+                dot.exist_ben_huai(1) or
+                dot.exist_ling_li() or
+                skill.hong_guang_free.wait_time() > 3 or
+                not fu_wen.exist(SmVal.img_fu_wen_gun_si)):
+            skill.hong_guang.freed()
+            return True
+        return False
 
     def action_ci_fu(self):
         skill = self.skill()
@@ -154,17 +165,35 @@ class SmSkillLoopFsmPve(SkillLoop):
         self.windows.key_up("shift")
         skill.e.auto()
 
+    def freed_cong_wu(self):
+        skill = self.skill()
+        fu_wen = self.fu_wen()
+        dot = self.dot()
+
+        if skill.gun_si.is_ok() or fu_wen.is_ok():
+            skill.gun_si.freed()
+            self.wait()
+            return True
+
+        # if skill.ling_li.is_ok() and not fu_wen.exist(SmVal.fu_wen_ling_li):
+        # if skill.ling_li.is_ok() :
+        #     skill.ling_li.freed()
+        #     return True
+        # if fu_wen.is_ok() and fu_wen.is_ok_plus():
+        #     skill.ling_li.freed()
+        #     return True
+
+        return False
+
     def freed_default_skill(self):
         skill = self.skill()
         fu_wen = self.fu_wen()
         dot = self.dot()
         if fu_wen.is_wait() and skill.yu_hong.is_ok():
             skill.yu_hong.freed()
-            skill.gun_si.freed()
+            self.update()
 
-        if skill.gun_si.is_ok() or fu_wen.is_ok():
-            skill.gun_si.freed()
-            self.wait()
+        self.freed_cong_wu()
 
         if skill.min_si.is_ok() and self.exist_fu_wen(SmVal.img_fu_wen_gun_si):
             skill.min_si.freed()
@@ -186,6 +215,23 @@ class SmSkillLoopFsmPve(SkillLoop):
         self.skill().q.free_auto()
         self.delay()
         self.windows.key_press("5")
+
+
+class SmSkillLoopFsmLingLi(SmSkillLoopFsmPve):
+    def freed_cong_wu(self):
+        skill = self.skill()
+        fu_wen = self.fu_wen()
+        dot = self.dot()
+
+        # if skill.ling_li.is_ok() and not fu_wen.exist(SmVal.fu_wen_ling_li):
+        if skill.ling_li.is_ok():
+            skill.ling_li.freed()
+            return True
+        if fu_wen.is_ok() and fu_wen.is_ok_plus():
+            skill.ling_li.freed()
+            return True
+
+        return False
 
 
 class SmSkillLoopFsmPvp(SmSkillLoopFsmPve):
@@ -211,3 +257,9 @@ class SmSkillLoopFsmPvp(SmSkillLoopFsmPve):
             skill.hong_guang_free.freed()
         elif skill.hong_guang.is_ok():
             skill.hong_guang_free.freed()
+
+    def __init__(self, windows: Windows):
+        super().__init__(windows)
+        self.ling_li_min = 0
+        self.ci_fu_ling_li = 0
+        self.ling_li_ka_dao = 15

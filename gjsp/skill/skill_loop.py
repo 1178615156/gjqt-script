@@ -1,10 +1,9 @@
 import logging
 
 from functional import seq
-
 from gjsp import Screen
 from gjsp.common import Windows, FindPic
-from gjsp.common.const_value import area_buff, area_skill, area_fu_wen
+from gjsp.common.const_value import AreaVal, GlobalVal
 from gjsp.common.utensil import millisecond
 from gjsp.skill.fsm import FSM
 
@@ -47,15 +46,27 @@ class SkillLoop(FSM, Screen):
         self.logger().info("update time -- %s" % (str(exec_time)))
 
     def exist_buffer(self, img):
-        return FindPic(original=self.screen().crop(area_buff), goal=img).isFind()
+        return FindPic(original=self.screen().crop(AreaVal.buff), goal=img).isFind()
 
     def exist_skill(self, img):
-        return FindPic(original=self.screen().crop(area_skill), goal=img, sim=0.99).isFind()
+        return FindPic(original=self.screen().crop(AreaVal.skill), goal=img, sim=0.99).isFind()
 
     def exist_fu_wen(self, img):
-        return FindPic(original=self.screen().crop(area_fu_wen), goal=img).isFind()
+        return FindPic(original=self.screen().crop(AreaVal.fu_wen), goal=img).isFind()
+
+    def mouse_tap(self):
+        if FindPic(GlobalVal.img_mouse_right, self.screen().crop(AreaVal.mouse_tap)).isFind() \
+                or FindPic(GlobalVal.img_mouse_right, self.screen().crop(AreaVal.mouse_tap)).isFind():
+            for i in range(8):
+                self.windows.mouse_left_click()
+                self.windows.mouse_right_click()
+            print("mouse tap")
+            return True
+        return False
 
     def run(self):
         self.update()
+        if self.mouse_tap():
+            return
         super().run()
         self.delay()

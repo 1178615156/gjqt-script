@@ -5,7 +5,7 @@ import time
 from functional import seq
 
 from gjsp.common import Windows
-from gjsp.common.const_value import ConfigVal, Area
+from gjsp.common.const_value import ConfigVal, AreaVal
 from gjsp.common.windows_dm import WindowsDm
 from gjsp.service.fish import Fish
 from gjsp.service.gua_ji import GjDps
@@ -36,7 +36,7 @@ print(seq({
     "args      ":str(sys.argv),
     "resolution":str(resolution),
     "hwnd      ":str(hwnd),
-    "reg_code  ":str(ConfigVal.dm_reg_code),
+    "reg_code  ":str(ConfigVal.dm_reg_list),
     "dm_is_free":str(windows.is_free)
 }.items()).map(lambda x:x[0]+":"+x[1]).make_string("\n"))
 
@@ -47,11 +47,13 @@ if not resolution == (1680, 1050):
 if len(sys.argv) <= 1 or opt() == "test":
     print("just test")
     time.sleep(2)
-    windows.key_press("1")
     screen = windows.screen_shot()
-    screen.crop(Area.skill).save("test_skill_area.jpg")
-    screen.crop(Area.buff).save("test_buff_area.jpg")
-    screen.crop(Area.fu_wen).save("test_fu_wen_area.jpg")
+    screen.crop(AreaVal.skill).save("test_skill_area.bmp")
+    screen.crop(AreaVal.buff).save("test_buff_area.bmp")
+    screen.crop(AreaVal.fu_wen).save("test_fu_wen_area.bmp")
+    screen.crop(AreaVal.dot).save("test_dot_area.bmp")
+    windows.key_press("1")
+
 elif opt() == "fish":
     if len(sys.argv) > 2:
         size = int(sys.argv[2])

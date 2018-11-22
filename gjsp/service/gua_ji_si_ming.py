@@ -2,7 +2,7 @@ import logging
 from gjsp.common import WindowsBuild
 from gjsp.service.gua_ji import GjDps, GjZiLiao
 from gjsp.service.hot_key import HotKey
-from gjsp.skill.sm import SmSkillLoopFsmPve, SmSkillLoopFsmPvp
+from gjsp.skill.sm import SmSkillLoopFsmPve, SmSkillLoopFsmPvp,SmSkillLoopFsmLingLi
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
@@ -16,6 +16,7 @@ if __name__ == '__main__':
     X = SmSkillLoopFsmPve(windows)
     # hot_key.add_handler(GjDps(name="gj-dps-pve", key="F5", windows=windows, skill_loop=X))
     hot_key.add_handler(GjDps(name="gj-dps-pve", key="Capital", windows=windows, skill_loop=X))
+    hot_key.add_handler(GjDps(name="gj-dps-pvp", key="F5", windows=windows, skill_loop=SmSkillLoopFsmLingLi(windows)))
     hot_key.add_handler(GjDps(name="gj-dps-pvp", key="F6", windows=windows, skill_loop=SmSkillLoopFsmPvp(windows)))
     hot_key.add_handler(GjZiLiao(name="gj-zi-liao", key="F7", windows=windows))
     hot_key.start_hook()

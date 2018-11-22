@@ -1,3 +1,22 @@
+from functional import seq
+import itertools
+mouse_dx_all = ["dx.mouse.position.lock.api",
+                "dx.mouse.position.lock.message",
+                "dx.mouse.focus.input.api",
+                "dx.mouse.focus.input.message",
+                "dx.mouse.clip.lock.api",
+                "dx.mouse.input.lock.api",
+                "dx.mouse.state.api",
+                "dx.mouse.state.message",
+                "dx.mouse.api",
+                "dx.mouse.cursor",
+                "dx.mouse.raw.input",
+                "dx.mouse.input.lock.api2",
+                "dx.mouse.input.lock.api3",
+                ]
+mouse_type_list = seq(range(1,len(mouse_dx_all)+1)) \
+    .flat_map(lambda n:itertools.combinations(mouse_dx_all,n))
+print(mouse_type_list[20])
 # import win32api
 # import win32con
 # import time
@@ -40,5 +59,5 @@
 # q.put(4)
 # q.put(6)
 # print(q.get())
-d  = {1:1}
-print(d.get(2))
+# d  = {1:1}
+# print(d.get(2))

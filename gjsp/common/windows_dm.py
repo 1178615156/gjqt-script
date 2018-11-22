@@ -14,6 +14,8 @@ import random
 import logging
 
 _logger = logging.getLogger("dm")
+
+
 # def get_reg_code() -> List[List[str]]:
 #     return list(
 #         filter(lambda l: len(l) == 2,
@@ -46,20 +48,30 @@ class WindowsDm(Windows):
         return Image.open(self.screen_file_name)
 
     def load_dll(self):
-        if ConfigVal.dm_reg_code == "":
+        if len(ConfigVal.dm_reg_list) == 0:
             print("not find reg code , use free dm")
             windll[user_dir + "dm-7.dll"].DllUnregisterServer()
             windll[user_dir + "dm-3.dll"].DllRegisterServer()
             self.dll = win32com.client.Dispatch('dm.dmsoft')
             self.is_free = True
         else:
-            print("find reg code , try to reg")
+            print("find dm reg code , try to reg")
             windll[user_dir + "dm-3.dll"].DllUnregisterServer()
             windll[user_dir + "dm-7.dll"].DllRegisterServer()
             self.dll = win32com.client.Dispatch('dm.dmsoft')
-            dm_ret = self.dll.Reg(ConfigVal.dm_reg_code, ConfigVal.dm_add_code)
-            self.check(dm_ret, "reg code is failure")
-            self.is_free = False
+            for reg_code in ConfigVal.dm_reg_list:
+                dm_ret = self.dll.Reg(reg_code.get("code"), reg_code.get("add"))
+                if dm_ret != 1:
+                    print("failure %s: %s" %(dm_ret,str(reg_code)))
+                    continue
+                else:
+                    print("success : "+str(reg_code))
+                    self.is_free = False
+                    break
+
+            if self.is_free is not False:
+                raise Exception("all dm reg code is failure")
+
         return self.dll
 
     def init(self, hwnd: int):
@@ -68,7 +80,7 @@ class WindowsDm(Windows):
         if self.is_free:
             print("start bind window")
             # dm_ret = self.dll.BindWindow(hwnd, "normal", "normal", "normal", 0)
-            dm_ret = self.dll.BindWindow(hwnd, "gdi", "windows", "windows", 0)
+            dm_ret = self.dll.BindWindow(hwnd, "gdi", "normal", "windows", 0)
             self.check(dm_ret, "bind is failure")
             print("bind window success")
         else:
@@ -76,7 +88,7 @@ class WindowsDm(Windows):
             self.check(dm_ret)
 
             print("start bind window")
-            dm_ret = self.dll.BindWindow(hwnd, "gdi", "windows", "windows", 0)
+            dm_ret = self.dll.BindWindow(hwnd, "gdi", "normal", "windows", 0)
             self.check(dm_ret, "bind is failure")
             print("bind window success")
 
@@ -102,7 +114,6 @@ class WindowsDm(Windows):
     def key_up(self, key):
         dm_ret = self.dll.KeyUpChar(key)
         self.check(dm_ret)
-
 
     def mouse_left_down(self):
         dm_ret = self.dll.LeftDown()

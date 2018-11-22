@@ -61,7 +61,7 @@ class Windows:
 
     def init(self, hwnd):
         user32 = windll.user32
-        user32.SetProcessDPIAware()
+        # user32.SetProcessDPIAware()
         Image.MAX_IMAGE_PIXELS = 15883307070
 
     @staticmethod

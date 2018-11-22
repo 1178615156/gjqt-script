@@ -2,6 +2,8 @@ from gjsp import Screen
 from gjsp.skill import Skill
 from gjsp.common.const_value import *
 
+from functional import seq
+
 
 class SmSkill(Screen):
     img_skills = goal_image("skills.bmp")
@@ -17,28 +19,31 @@ class SmSkill(Screen):
         skill_img = self.skill_img
         n = 44
         self.windows = windows
-        self.q = Skill("q", "q", windows, None)
-        self.e = Skill("e", "e", windows, None)
-        self.hong_guang = Skill("虹光", "6", windows, skill_img(n * 2 + 2))
-        self.hong_guang_ci_fu = Skill("虹光-赐福", "6", windows, goal_image("si_ming_skill_hong_guang_ci_fu.bmp"))
+        self.q = Skill("q", "[", windows, SmVal.SkillImg.q)
+        self.e = Skill("e", "]", windows, SmVal.SkillImg.e)
+        self.hong_guang = Skill("虹光", "6", windows, SmVal.SkillImg.hong_guang)
+        self.hong_guang_ci_fu = Skill("虹光-赐福", "6", windows, SmVal.SkillImg.hong_guan_ci_fu)
         self.hong_guang_free = Skill("虹光-免费", "6", windows, SmVal.buff_liu_guang)
-        self.hong_guang_mei_lan = Skill("虹光", "6", windows, SmVal.skill_hg_mei_lan)
-        self.gun_si = Skill("滚石", "7", windows, [skill_img(n * 3)])
-        self.min_si = Skill("名视", "8", windows, skill_img(n * 4 + 2))
-        self.ci_fu = Skill("赐福", "9", windows, skill_img(n * 5 + 2))
-        self.yu_hong = Skill("玉虹", "0", windows, skill_img(n * 6 + 2))
-        self.jin_yu = Skill("金羽", "-", windows, skill_img(n * 7 + 2))
+        self.hong_guang_mei_lan = Skill("虹光", "6", windows, SmVal.SkillImg.hong_guang_mei_lan)
+        self.gun_si = Skill("滚石", "7", windows, SmVal.SkillImg.gun_si)
+        self.min_si = Skill("季晴", "8", windows, SmVal.SkillImg.ji_qin)
+        self.ci_fu = Skill("赐福", "9", windows, SmVal.SkillImg.ci_fu)
+        self.yu_hong = Skill("玉虹", "0", windows, SmVal.SkillImg.yu_hong)
+        self.jin_yu = Skill("金羽", "-", windows, SmVal.SkillImg.jin_yu)
+        self.ling_li = Skill("灵狸", "=", windows, SmVal.SkillImg.ling_li)
+
+        self.all_skills = seq(vars(self).items()).map(lambda x:x[1]).filter(lambda x: isinstance(x, Skill))
 
     def update(self, screen):
-        screen_skill = screen.crop(Area.skill)
-        screen_buff = screen.crop(Area.buff)
-        self.hong_guang.update(screen_skill)
+        screen_skill = screen.crop(AreaVal.skill)
+        screen_buff = screen.crop(AreaVal.buff)
+        self.all_skills.for_each(lambda skill: skill.update(screen_skill))
         self.hong_guang_free.update(screen_buff)
-        self.hong_guang_ci_fu.update(screen_skill)
-        self.gun_si.update(screen_skill)
-        self.min_si.update(screen_skill)
-        self.ci_fu.update(screen_skill)
-        self.yu_hong.update(screen_skill)
-        self.jin_yu.update(screen_skill)
-        self.hong_guang_mei_lan.update(screen_skill)
-
+        # self.hong_guang.update(screen_skill)
+        # self.hong_guang_ci_fu.update(screen_skill)
+        # self.gun_si.update(screen_skill)
+        # self.min_si.update(screen_skill)
+        # self.ci_fu.update(screen_skill)
+        # self.yu_hong.update(screen_skill)
+        # self.jin_yu.update(screen_skill)
+        # self.hong_guang_mei_lan.update(screen_skill)

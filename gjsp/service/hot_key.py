@@ -9,6 +9,7 @@ from gjsp.service.even_loop import EvenLoop
 
 _logger = logging.getLogger("even_loop")
 
+
 # _press_key_file = open("D:/press_key.txt", "a")
 
 
@@ -25,20 +26,13 @@ class HotKey:
     def start_hook(self):
         def handle_events(args: KeyboardEvent):
             key = args.current_key
-            # if args.event_type == "key up":
-            #     _press_key_file.write("%s,%s,up\n" % (millisecond(), key))
-            # else:
-            #     _press_key_file.write("%s,%s,down\n" % (millisecond(), key))
-            # _press_key_file.flush()
-            if key not in self.handler:
+            if key not in self.handler or not args.event_type == 'key up':
                 return
-            if not args.event_type == 'key up':
-                return
-            for even_loop in self.handler.values():
-                if even_loop.key() == key:
-                    even_loop.update()
-                else:
-                    even_loop.set_stop()
+            handlers = seq(self.handler.values())
+            if handlers.exists(lambda x: x.is_run):
+                handlers.for_each(lambda x: x.set_stop())
+            else:
+                handlers.filter(lambda x: x.key() == key).for_each(lambda x: x.update())
 
         self.hk.handler = handle_events
         self.thread = Thread(target=lambda: self.hk.hook())

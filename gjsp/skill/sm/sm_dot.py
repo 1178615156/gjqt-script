@@ -1,6 +1,6 @@
 from gjsp import Screen
 from gjsp.common import FindPic
-from gjsp.common.const_value import SmVal, Area
+from gjsp.common.const_value import SmVal, AreaVal
 
 
 class SmDot(Screen):
@@ -31,5 +31,8 @@ class SmDot(Screen):
         else:
             assert False, "number error %s" % (n)
 
+    def exist_ling_li(self):
+        return self.exist(SmVal.dot_ling_li)
+
     def exist(self, img):
-        return FindPic(original=self.screen().crop(Area.dot), goal=img).isFind()
+        return FindPic(original=self.screen().crop(AreaVal.dot), goal=img).isFind()

@@ -42,6 +42,8 @@ class SmFuWen(AreaScreen):
     def is_ok(self) -> bool:
         return self.exist(SmVal.img_fu_wen_empty) or self.exist(SmVal.img_fu_wen_empty_plus)
 
+    def is_ok_plus(self):
+        return self.exist(SmVal.img_fu_wen_empty_plus)
     def is_wait(self) -> bool:
         return self.wait_fu_wen_1 or self.wait_fu_wen_2 or self.wait_fu_wen_3
 
